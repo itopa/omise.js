@@ -1,4 +1,4 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -21,15 +21,19 @@
     <form id="card">
       <div>
         Name<br>
-        <input data-omise="card_name">
+        <input data-omise="card_name" value="Taro Omise">
       </div>
       <div>
         Number<br>
-        <input data-omise="card_number">
+        <input data-omise="card_number" value="4242424242424242">
       </div>
       <div>
         Date<br>
-        <input data-omise="card_expm" size="4">/<input data-omise="card_expy" size="8">
+        <input data-omise="card_expm" size="4" maxlength="2" placeholder="MM"> / <input data-omise="card_expy" size="8" maxlength="4" placeholder="YYYY">
+      </div>
+      <div>
+        Security Code<br>
+        <input data-omise="card_cvc" maxlength="4" type="password" placeholder="•••">
       </div>
       <input type="submit">
     </form>
@@ -51,6 +55,10 @@
         "use strict";
 
         $(document).ready(function () {
+          // Filling out sample values
+          $("[data-omise=card_expm]").val(new Date().getMonth() + 1 );
+          $("[data-omise=card_expy]").val(new Date().getFullYear() + 2);
+          $("[data-omise=card_cvc]").val(123);
 
           // The public key could be found in Omise Dashboard. You must set
           // the public key before calling Omise.createToken otherwise
@@ -64,12 +72,15 @@
             // Create a token with Omise. Form data is retrieved from data-omise
             // set in <input> attribute. Please note that it is important that
             // form inputs DO NOT have "name" attribute.
-            Omise.createToken("card", {
+            var card = {
               "name": $("[data-omise=card_name]").val(),
               "number": $("[data-omise=card_number]").val(),
               "expiration_month": $("[data-omise=card_expm]").val(),
-              "expiration_year": $("[data-omise=card_expy]").val()
-            }, function(statusCode, response) {
+              "expiration_year": $("[data-omise=card_expy]").val(),
+              "security_code": $("[data-omise=card_cvc]").val()
+            };
+
+            Omise.createToken("card", card, function(statusCode, response) {
 
               // This callback will be called regardless of token creation
               // was success or not. You may check the status of token
@@ -85,7 +96,7 @@
               if (response.object == "token") {
                 $("#response").html(response.id);
               } else {
-                $("#response").html(response.code+": "+response.message)
+                $("#response").html(response.code+": "+response.message);
               };
 
             });
